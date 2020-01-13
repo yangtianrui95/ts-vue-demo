@@ -18,5 +18,7 @@ module.exports = {
                 }
             ],
         },
-    }
+    },
+    // 关闭lint检查
+    lintOnSave: false
 };
