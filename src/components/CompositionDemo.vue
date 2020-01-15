@@ -1,11 +1,47 @@
 <template>
-    <div class="container">
-        <div>{{state.msg}}</div>
-    </div>
+  <div class="container">
+    <h1>{{title}}</h1>
+    <div>{{state.msg}}</div>
+  </div>
 </template>
 
 <script lang="ts">
-    import {createComponent, onBeforeUnmount, onMounted, reactive, SetupContext} from '@vue/composition-api'
+    import {
+        computed,
+        createComponent,
+        onBeforeUnmount,
+        onMounted,
+        reactive, Ref,
+        SetupContext,
+        toRefs,
+        watch
+    } from '@vue/composition-api'
+
+    interface State2 {
+        title: string,
+        subtitle: string,
+        date: string,
+    }
+
+    function changeTitleRandom(ctx: SetupContext): any {
+        const state2 = reactive({title: 'mytitle', subtitle: 'subtitle', date: String(Date.now())});
+
+        watch(() => {
+            console.log('watch date is ' + state2.date)
+        });
+
+        let isInitial: Ref<Readonly<boolean>> = computed(() => {
+            return state2.title === 'mytitle';
+        });
+        onMounted(() => {
+            console.log('isInitial ' + isInitial.value);
+            setInterval(() => {
+                state2.date = String(Date.now());
+                state2.title = state2.date;
+            }, 3000);
+        });
+        return {state2, isInitial};
+    }
 
     interface State {
         msg: number,
@@ -26,10 +62,12 @@
                 // console.log('onMounted', state.intervalId)
             });
 
-            onBeforeUnmount(()=>{
+            onBeforeUnmount(() => {
                 clearInterval(state.intervalId);
             });
-            return {state};
+            const {state2, isInitial} = changeTitleRandom(ctx);
+            // @ts-ignore
+            return {state, ...toRefs(state2), isInitial};
         }
     })
 </script>
